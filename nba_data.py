@@ -1,8 +1,13 @@
 import pandas as pd
 import re
+import pickle
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 def scrape_games(form = 'dataframe', startYear = 2015, endYear = 2021):
-    years = range(startYear, endYear)
+    years = range(startYear, endYear+1)
     months = ['december', 'january', 'february','march']
     columns = ['Date', 'Time_ET', 'Vis_Team', 'Vis_Pts', 'Home_Team', 'Home_Pts', 'Box', 'OT', 'Attend','Notes']
 
@@ -18,7 +23,7 @@ def scrape_games(form = 'dataframe', startYear = 2015, endYear = 2021):
             else:
                 df = df.append(df_n)
 
-    df.dropna(subset=['Vis_Pts', 'Home_Pts'], inplace=True, axis=0)
+
 
     def date_reformat(date):
         char_to_replace = {'Dec':'12','Jan':'01','Feb':'02','Mar':'03'}
@@ -193,6 +198,8 @@ def run_all(startYear = 2018, endYear = 2021, n_roll = 10):
     df_team = format_by_team(df_raw)
     df_feat = feature_eng(df_team, n_roll=n_roll)
     df_final = predict_format(df_raw, df_feat)
+    df_final.dropna(subset=['R_OppPtsFor', 'R_OppWinPct', 'R_TeamPtsFor', 'R_TeamWinPct'],
+                    inplace=True, axis=0)
     return df_final
 
 def keep_features(df):
@@ -206,7 +213,47 @@ def keep_features(df):
 
     df = df.copy()[keep]
 
-    df.dropna(axis=0, inplace=True)
-
     return df
+
+def prediction(df_raw, df):
+    clf = pickle.load(open("nbaPredict.pickle", "rb"))
+    X = df[[col for col in df.columns if col!='Outcome']]
+    
+    clf.predict(X)
+    proba = clf.predict_proba(X)
+    predict = clf.predict(X)
+    arr2 = np.hsplit(proba, 2)
+    arr = np.stack((predict, arr2[0].flatten(), arr2[1].flatten()), axis=1)
+    df_result = pd.DataFrame(arr, columns=['predict', '0', '1'])
+
+    def greater(x):
+        if x[0] > x[1]:
+            return x[0]
+        else:
+            return x[1]
+
+    df_result['confidence'] = df_result[['0','1']].apply(greater, axis=1)
+    df_result.drop(columns=['0','1'], inplace=True)
+
+    cols = ['Date','Game_Day', 'Time_ET', 'Home_Team', 'Vis_Team']
+    df_raw = df_raw.copy()[cols]
+
+    result = pd.concat([df_raw.reset_index(), df_result.reset_index()], axis=1)
+    result.drop(columns='index', inplace=True)
+    result.sort_values(by='confidence', ascending=False, inplace=True)
+
+    def winner(x):
+        if x[0]==1:
+            return x[1]
+        elif x[0]==0:
+            return x[2]
+    
+    result['Winner_Prediction'] = result[['predict','Home_Team', 'Vis_Team']].apply(winner, axis=1)
+    result.drop(columns='predict', inplace=True)
+
+    def date_change(x):
+        return x.date()
+    
+    result['Date'] = result['Date'].apply(lambda x: date_change(x))
+    return result
     
