@@ -3,10 +3,14 @@
 This project is intented to scrape and format NBA data from [basketball-reference.com](https://www.basketball-reference.com/leagues/NBA_2021_games-january.html) then use that data to create a predictive model and deploy it through a dashboard that shows the upcoming games with supporting data.
 
 ## Features
-It collects
+### nba_data.py
+It collects data about each game for the timeframe specified. The specific details collected are Date, Time, Visitor Team, Visitor Points, Home Team, Home Points, Attendance, Notes.
+
+### main.py
+
 
 ## Screenshot Examples
-![Dashboard Screenshot](Example/Dashboard.jpg)
+![Dashboard Screenshot](Example/Dashboard.JPG)
 
 ## Tech / Libraries Used
 * **Language(s):**
