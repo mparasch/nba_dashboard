@@ -6,7 +6,7 @@ This project is intented to scrape and format NBA data from [basketball-referenc
 It collects
 
 ## Screenshot Examples
-![Dashboard Screenshot](Examples/Dashboard.jpeg)
+![Dashboard Screenshot](Example/Dashboard.jpg)
 
 ## Tech / Libraries Used
 * **Language(s):**
