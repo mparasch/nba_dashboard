@@ -1,18 +1,23 @@
 # nba_dashboard
 
-This project is intented to scrape and format NBA data from [basketball-reference.com](https://www.basketball-reference.com/leagues/NBA_2021_games-january.html).
-
-I intend to use it for predictive modeling for nba games once more data is able to be collected.
+This project is intented to scrape and format NBA data from [basketball-reference.com](https://www.basketball-reference.com/leagues/NBA_2021_games-january.html) then use that data to create a predictive model and deploy it through a dashboard that shows the upcoming games with supporting data.
 
 ## Features
-It is currently only collecting features for games such as date, time, teams, and points.
+It collects
+
+## Screenshot Examples
+![Dashboard Screenshot](Examples/Dashboard.jpeg)
 
 ## Tech / Libraries Used
 * **Language(s):**
     * Python 3
 * **Libraries:**
     * pandas
+    * numpy
     * re
+    * dash -- version = 1.19.0
+    * plotly -- version = 4.14.3
+    * sklearn -- version = 0.24.1
 
 ## Code Example
 
