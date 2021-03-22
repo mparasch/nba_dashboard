@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-def scrape_games(form = 'dataframe', startYear = 2015, endYear = 2021):
+def scrape_games(form = 'dataframe', startYear = 2019, endYear = 2021):
     years = range(startYear, endYear+1)
     months = ['december', 'january', 'february','march']
     columns = ['Date', 'Time_ET', 'Vis_Team', 'Vis_Pts', 'Home_Team', 'Home_Pts', 'Box', 'OT', 'Attend','Notes']

@@ -8,6 +8,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 from datetime import date, timedelta
+import odds_data
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -51,6 +52,13 @@ df['Rating'] = df['confidence'].apply(lambda x:
     '⭐⭐⭐' if x > 0.5521258650846338 else (
     '⭐⭐' if x > 0.5246168930553068 else '⭐'
 ))))
+
+df_odds = odds_data.scrape()
+
+df = df.merge(df_odds, how='left', left_on='Winner_Prediction', right_on='Teams')
+df.drop(columns='Teams', inplace=True)
+
+df['Implied_Prob'] = df['Odds'].apply(lambda x: odds_data.implied_prob(x))
 
 app.layout = html.Div(style={'backgroundColor': colors['background']},children=[
     html.H1(style = header1, children='NBA Dashboard'),
