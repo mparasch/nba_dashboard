@@ -6,6 +6,7 @@ import pandas as pd
 
 def scrape():
     driver = webdriver.Firefox()
+    driver.minimize_window()
     driver.get("https://www.bovada.lv/sports/basketball/nba")
 
     try:
@@ -27,10 +28,16 @@ def scrape():
         odds_list = []
 
         for i in odds:
-            if i.text[0]!='(':
-                odds_list.append(i.text)
+            if len(i.text)>0:
+                if i.text[0]!='(':
+                    odds_list.append(i.text)
 
-        data = {'Teams':team_list, 'Odds':odds_list}
+        print(team_list, odds_list)
+        
+        if len(odds_list)==len(team_list):
+            data = {'Teams':team_list, 'Odds':odds_list}
+        elif len(odds_list)<len(team_list):
+            data = {'Teams':team_list[0:len(odds_list)], 'Odds':odds_list}
 
         df = pd.DataFrame(data)
         return df
