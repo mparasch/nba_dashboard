@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-import numpy as np
 import nba_data as nba
 import dash
 import dash_table
-import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
-from datetime import date, timedelta
-import datetime as dt
 import odds_data
-
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-import pickle
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)

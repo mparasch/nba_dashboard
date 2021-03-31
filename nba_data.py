@@ -2,9 +2,6 @@ import pandas as pd
 import re
 import pickle
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 
 def scrape_games(form = 'dataframe', startYear = 2019, endYear = 2021):
     years = range(startYear, endYear+1)

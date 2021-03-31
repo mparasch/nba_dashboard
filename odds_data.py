@@ -11,7 +11,6 @@ def scrape():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(chrome_options=chrome_options)
-    # driver.minimize_window()
     driver.get("https://www.bovada.lv/sports/basketball/nba")
 
     try:
@@ -27,10 +26,9 @@ def scrape():
             else:
                 team_list.append('Los Angeles Clippers')
 
-        odds = WebDriverWait(driver, 10).until(
+        odds = WebDriverWait(driver, 10, ignored_exceptions=ignored_exceptions).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "bet-price"))
-        )
-
+        )      
         odds_list = []
 
         for i in odds:
