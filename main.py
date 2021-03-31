@@ -8,17 +8,41 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 from datetime import date, timedelta
+import datetime as dt
 import odds_data
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import pickle
+import warnings
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 today = pd.Timestamp('today').replace(hour=0, minute=0, second=0, microsecond=0)
 
 current_year = pd.datetime.now().year
 
 start_year = current_year - 2
+
+df_raw = nba.run_all(startYear=start_year, endYear=current_year)
+df_raw = df_raw[df_raw['Date']>=today]
+df_feat = nba.keep_features(df_raw)
+df = nba.prediction(df_raw, df_feat)
+df = df[df['Date']==pd.datetime.now().date()]
+
+df['Rating'] = df['confidence'].apply(lambda x:
+    '⭐⭐⭐⭐⭐' if x > 0.6234027304661728 else (
+    '⭐⭐⭐⭐' if x > 0.5831375078444988 else (
+    '⭐⭐⭐' if x > 0.5521258650846338 else (
+    '⭐⭐' if x > 0.5246168930553068 else '⭐'
+))))
+
+df_odds = odds_data.scrape()
+
+df = df.merge(df_odds, how='left', left_on='Winner_Prediction', right_on='Teams')
+df.drop(columns='Teams', inplace=True)
+
+df['Implied_Prob'] = df['Odds'].apply(lambda x: odds_data.implied_prob(x))
 
 app = dash.Dash(__name__)
 
@@ -40,25 +64,6 @@ header2 = {'textAlign':'center',
 
 padding = {'marginLeft':'20px', 
             'marginRight':'20px'}
-
-df_raw = nba.run_all(startYear=start_year, endYear=current_year)
-df_raw = df_raw[df_raw['Date']>=today]
-df_feat = nba.keep_features(df_raw)
-df = nba.prediction(df_raw, df_feat)
-
-df['Rating'] = df['confidence'].apply(lambda x:
-    '⭐⭐⭐⭐⭐' if x > 0.6234027304661728 else (
-    '⭐⭐⭐⭐' if x > 0.5831375078444988 else (
-    '⭐⭐⭐' if x > 0.5521258650846338 else (
-    '⭐⭐' if x > 0.5246168930553068 else '⭐'
-))))
-
-df_odds = odds_data.scrape()
-
-df = df.merge(df_odds, how='left', left_on='Winner_Prediction', right_on='Teams')
-df.drop(columns='Teams', inplace=True)
-
-df['Implied_Prob'] = df['Odds'].apply(lambda x: odds_data.implied_prob(x))
 
 app.layout = html.Div(style={'backgroundColor': colors['background']},children=[
     html.H1(style = header1, children='NBA Dashboard'),
@@ -84,4 +89,4 @@ app.layout = html.Div(style={'backgroundColor': colors['background']},children=[
 ])
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

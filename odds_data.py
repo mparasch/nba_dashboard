@@ -2,15 +2,21 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
 def scrape():
-    driver = webdriver.Firefox()
-    driver.minimize_window()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(chrome_options=chrome_options)
+    # driver.minimize_window()
     driver.get("https://www.bovada.lv/sports/basketball/nba")
 
     try:
-        teams = WebDriverWait(driver, 10).until(
+        ignored_exceptions=(NoSuchElementException,StaleElementReferenceException,)
+        teams = WebDriverWait(driver, 10, ignored_exceptions=ignored_exceptions).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, "name"))
         )
         team_list = []
@@ -41,7 +47,12 @@ def scrape():
 
         df = pd.DataFrame(data)
         return df
-
+    
+    except:
+        driver.quit()
+        print('Error occured... Re-running Bovada scrape')
+        scrape()
+    
     finally:
         driver.quit()
 
